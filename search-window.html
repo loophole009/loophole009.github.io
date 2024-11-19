@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Popup</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .suggestions {
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            position: absolute;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .suggestion {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .suggestion:hover {
+            background-color: #f0f0f0;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .card-title a {
+            color: #1a0dab;
+            text-decoration: none;
+        }
+        .card-title a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Search</h1>
+        <div class="search-container">
+            <input type="text" class="form-control" id="searchInput" placeholder="Search...." oninput="showSuggestions(this.value)">
+            <div class="suggestions list-group" id="suggestionsBox"></div>
+        </div>
+        <div class="results" id="resultsBox"></div>
+    </div>
+
+    <script>
+        const suggestions = [
+            "apple",
+            "banana",
+            "cherry",
+            "date",
+            "fig",
+            "grape",
+            "kiwi",
+            "lemon",
+            "mango",
+            "orange"
+        ];
+
+        const results = {
+            "apple": [
+                { title: "Apple - Wikipedia", description: "The apple is a sweet, edible fruit produced by an apple tree.", link: "https://en.wikipedia.org/wiki/Apple" },
+                { title: "Apple Inc.", description: "Apple Inc. is an American multinational technology company.", link: "https://www.apple.com/" }
+            ],
+            "banana": [
+                { title: "Banana - Wikipedia", description: "A banana is an elongated, edible fruit.", link: "https://en.wikipedia.org/wiki/Banana" },
+                { title: "Banana Nutrition Facts", description: "Bananas are rich in vitamins and minerals.", link: "https://www.healthline.com/nutrition/bananas" }
+            ]
+            // Add more results as needed
+        };
+
+        function showSuggestions(value) {
+            const suggestionsBox = document.getElementById('suggestionsBox');
+            suggestionsBox.innerHTML = '';
+            if (value) {
+                const filteredSuggestions = suggestions.filter(suggestion =>
+                    suggestion.toLowerCase().includes(value.toLowerCase())
+                );
+                filteredSuggestions.forEach(suggestion => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion list-group-item';
+                    div.textContent = suggestion;
+                    div.onclick = () => selectSuggestion(suggestion);
+                    suggestionsBox.appendChild(div);
+                });
+            }
+        }
+
+        function selectSuggestion(suggestion) {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = suggestion;
+            document.getElementById('suggestionsBox').innerHTML = '';
+            displayResults(suggestion);
+        }
+
+        function displayResults(query) {
+            const resultsBox = document.getElementById('resultsBox');
+            resultsBox.innerHTML = '';
+            if (results[query]) {
+                results[query].forEach(result => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="${result.link}" target="_blank">${result.title}</a></h5>
+                            <p class="card-text">${result.description}</p>
+                        </div>
+                    `;
+                    resultsBox.appendChild(card);
+                });
+            } else {
+                resultsBox.innerHTML = '<p>No results found.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
