@@ -97,11 +97,6 @@ a:hover {
   font-size: 38px;
 }
 
-.highlight {
-  background-color: #ededed;
-  padding: 4px 8px;
-}
-
 .form-control {
   border: none;
   background-color: #e8ebef !important;
