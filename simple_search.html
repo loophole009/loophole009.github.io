@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding-top: 60px; /* Add padding to ensure content is not hidden behind the fixed search bar */
+        }
+
+        #searchContainer {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #fff;
+            padding: 10px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+        }
+
+        #searchBar {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #searchButton {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #searchButton:hover {
+            background-color: #0056b3;
+        }
+
+        #results, #recommendations {
+            width: 80%;
+            margin: 20px auto 0; /* Add auto left and right margins */
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #recommendations h2 {
+            font-size: 20px;
+            margin: 0;
+            padding: 15px;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .result-item, .recommendation-item {
+            padding: 20px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .result-item:hover, .recommendation-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .result-item:last-child, .recommendation-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item strong, .recommendation-item strong {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .result-item p, .recommendation-item p {
+            margin: 5px 0 0;
+            color: #666;
+        }
+
+        .no-results, .error-message {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+
+        .error-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="searchContainer">
+        <input type="text" id="searchBar" placeholder="Search..." onkeyup="showTitles()">
+        <button id="searchButton" onclick="showDetails()">Search</button>
+    </div>
+    <div id="results"></div>
+    <div id="recommendations">
+        <h2>Recommendations</h2>
+    </div>
+
+    <script>
+        async function fetchDefaultRecommendations() {
+            const recommendationsContainer = document.getElementById('recommendations');
+            recommendationsContainer.innerHTML = '<h2>Recommendations</h2>'; // Clear previous recommendations but keep the heading
+
+            try {
+                const response = await fetch(`http://localhost:5000/recommend/0`);
+                const recommendations = await response.json();
+
+                if (recommendations.length === 0) {
+                    recommendationsContainer.innerHTML += '<div class="no-results">No recommendations found.</div>';
+                } else {
+                    recommendations.forEach(recommendation => {
+                        const recommendationItem = document.createElement('div');
+                        recommendationItem.className = 'recommendation-item';
+                        recommendationItem.innerHTML = `<strong>${recommendation.title}</strong><p>${recommendation.genres}</p>`;
+                        recommendationsContainer.appendChild(recommendationItem);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching recommendations:', error);
+                recommendationsContainer.innerHTML += '<div class="error-message">An error occurred while fetching recommendations.</div>';
+            }
+        }
+
+        async function showTitles() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const resultsContainer = document.getElementById('results');
+            const recommendationsContainer = document.getElementById('recommendations');
+
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+            recommendationsContainer.innerHTML = '<h2>Recommendations</h2>'; // Clear previous recommendations but keep the heading
+
+            if (query.trim() === '') {
+                fetchDefaultRecommendations();
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/movie/search?rerank=true&size=10&pattern=${query}`);
+                const searchResults = await response.json();
+
+                if (searchResults.length === 0) {
+                    resultsContainer.innerHTML = '<div class="no-results">No results found.</div>';
+                } else {
+                    searchResults.forEach(result => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'result-item';
+                        resultItem.innerHTML = `<strong>${result.title}</strong><p>${result.genres}</p>`;
+                        resultItem.onclick = () => {
+                            window.open(`https://www.imdb.com/find/?q=${result.title}`, '_blank');
+                            resultsContainer.innerHTML = '';
+                            showRecommendations(result.id);
+                        };
+                        resultsContainer.appendChild(resultItem);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching search results:', error);
+                resultsContainer.innerHTML = '<div class="error-message">An error occurred while fetching results.</div>';
+            }
+        }
+
+        async function showRecommendations(movieId) {
+            const recommendationsContainer = document.getElementById('recommendations');
+            recommendationsContainer.innerHTML = '<h2>Recommendations</h2>'; // Clear previous recommendations but keep the heading
+
+            try {
+                const response = await fetch(`http://localhost:5000/recommend/${movieId}?top_n=5`);
+                const recommendations = await response.json();
+
+                if (recommendations.length === 0) {
+                    recommendationsContainer.innerHTML += '<div class="no-results">No recommendations found.</div>';
+                } else {
+                    recommendations.forEach(recommendation => {
+                        const recommendationItem = document.createElement('div');
+                        recommendationItem.className = 'recommendation-item';
+                        recommendationItem.innerHTML = `<strong>${recommendation.title}</strong><p>${recommendation.genres}</p>`;
+                        recommendationsContainer.appendChild(recommendationItem);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching recommendations:', error);
+                recommendationsContainer.innerHTML += '<div class="error-message">An error occurred while fetching recommendations.</div>';
+            }
+        }
+
+        async function showDetails() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            const resultsContainer = document.getElementById('results');
+            const recommendationsContainer = document.getElementById('recommendations');
+
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+            recommendationsContainer.innerHTML = '<h2>Recommendations</h2>'; // Clear previous recommendations but keep the heading
+
+            if (query.trim() === '') {
+                fetchDefaultRecommendations();
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/movie/search?rerank=true&size=10&pattern=${query}`);
+                const searchResults = await response.json();
+
+                if (searchResults.length === 0) {
+                    resultsContainer.innerHTML = '<div class="no-results">No results found.</div>';
+                } else {
+                    searchResults.forEach(result => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'result-item';
+                        resultItem.innerHTML = `<strong>${result.title}</strong><p>${result.genres}</p>`;
+                        resultItem.onclick = () => {
+                            window.open(`https://www.imdb.com/find/?q=${result.title}`, '_blank');
+                            resultsContainer.innerHTML = '';
+                            showRecommendations(result.id);
+                        };
+                        resultsContainer.appendChild(resultItem);
+                        // Show genres on search button click
+                        resultItem.querySelector('p').style.display = 'block';
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching search results:', error);
+                resultsContainer.innerHTML = '<div class="error-message">An error occurred while fetching results.</div>';
+            }
+        }
+
+        // Fetch default recommendations on page load
+        fetchDefaultRecommendations();
+    </script>
+</body>
+</html>
