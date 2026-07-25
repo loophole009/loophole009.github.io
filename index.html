@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shaif Aslam — Software Engineer</title>
+<meta name="description" content="Shaif Aslam — Software Engineer specializing in backend systems, search & retrieval, and cloud-native e-commerce platforms.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEF0EA;
+    --paper-alt:#E3E7DE;
+    --card:#FCFDFB;
+    --ink:#14181A;
+    --ink-soft:#535B54;
+    --ink-faint:#8A9188;
+    --line:#CBD1C4;
+    --accent:#2E8F76;
+    --accent-dark:#1F6653;
+    --highlight:#FFD84D;
+    --highlight-active:#FF9F3F;
+    --radius:3px;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; scroll-padding-top:96px;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--highlight); color:var(--ink);}
+
+  a{color:var(--accent-dark); text-decoration-color: rgba(46,143,118,0.35);}
+  a:hover{text-decoration-color: var(--accent-dark);}
+
+  mark.hit{
+    background:var(--highlight);
+    color:var(--ink);
+    padding:0 1px;
+    border-radius:2px;
+    box-shadow:0 0 0 1px rgba(20,24,26,0.08) inset;
+  }
+  mark.hit.active{
+    background:var(--highlight-active);
+    animation:pulse 0.6s ease;
+  }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(255,159,63,0.55); }
+    100%{ box-shadow:0 0 0 8px rgba(255,159,63,0); }
+  }
+
+  /* ---------- Top bar / search ---------- */
+  header.topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(238,240,234,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:1040px; margin:0 auto;
+    padding:12px 24px;
+    display:flex; align-items:center; gap:18px;
+    flex-wrap:wrap;
+  }
+  .prompt{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    display:flex; align-items:center; gap:6px;
+  }
+  .prompt .user{color:var(--accent-dark); font-weight:600;}
+  .prompt .cursor{
+    display:inline-block; width:7px; height:14px; background:var(--ink);
+    animation:blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  nav.crumbs{
+    display:flex; gap:16px; font-family:var(--mono); font-size:12.5px;
+    margin-left:4px;
+  }
+  nav.crumbs a{
+    color:var(--ink-soft); text-decoration:none; position:relative; padding-bottom:2px;
+  }
+  nav.crumbs a::after{
+    content:""; position:absolute; left:0; bottom:0; width:0; height:1px;
+    background:var(--accent); transition:width .18s ease;
+  }
+  nav.crumbs a:hover{color:var(--ink);}
+  nav.crumbs a:hover::after{width:100%;}
+
+  .search-wrap{
+    margin-left:auto;
+    display:flex; align-items:center; gap:8px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:6px 10px;
+    min-width:230px;
+    flex:1 1 260px;
+    max-width:360px;
+  }
+  .search-wrap:focus-within{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(46,143,118,0.14);
+  }
+  .search-wrap svg{ flex:none; opacity:0.55; }
+  #searchInput{
+    border:none; outline:none; background:transparent;
+    font-family:var(--mono); font-size:13px; color:var(--ink);
+    width:100%;
+  }
+  #searchInput::placeholder{ color:var(--ink-faint); }
+  #searchMeta{
+    font-family:var(--mono); font-size:11px; color:var(--ink-faint);
+    white-space:nowrap;
+  }
+  .search-nav-btn{
+    border:none; background:none; cursor:pointer; color:var(--ink-soft);
+    font-family:var(--mono); font-size:13px; padding:2px 4px; line-height:1;
+  }
+  .search-nav-btn:hover{ color:var(--accent-dark); }
+  .search-nav-btn:disabled{ opacity:0.25; cursor:default; }
+
+  /* ---------- Layout shell ---------- */
+  main{ max-width:1040px; margin:0 auto; padding:0 24px; }
+  section{ padding:64px 0; border-bottom:1px solid var(--line); }
+  section:last-of-type{ border-bottom:none; }
+
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:.08em;
+    color:var(--accent-dark); text-transform:uppercase;
+    display:flex; align-items:center; gap:8px; margin-bottom:10px;
+  }
+  .eyebrow::before{ content:"›"; font-weight:700; }
+
+  h2.section-title{
+    font-family:var(--mono); font-weight:600; font-size:22px;
+    margin:0 0 28px 0; color:var(--ink);
+    display:flex; align-items:baseline; gap:10px;
+  }
+  h2.section-title .count{
+    font-size:12px; color:var(--ink-faint); font-weight:400;
+  }
+
+  /* ---------- Hero ---------- */
+  section.hero{ padding-top:56px; padding-bottom:52px; }
+  .hero-grid{
+    display:grid; grid-template-columns: 1fr auto; gap:32px; align-items:start;
+  }
+  h1{
+    font-family:var(--mono); font-weight:700;
+    font-size:clamp(32px, 5vw, 52px);
+    line-height:1.05; margin:0 0 6px 0; letter-spacing:-0.01em;
+  }
+  h1 .dot{ color:var(--accent); }
+  .role-line{
+    font-family:var(--mono); font-size:15px; color:var(--ink-soft); margin:0 0 22px 0;
+  }
+  .hero-summary{
+    max-width:640px; font-size:16px; color:var(--ink-soft); margin:0 0 26px 0;
+  }
+  .contact-row{
+    display:flex; flex-wrap:wrap; gap:10px 18px; font-family:var(--mono); font-size:13px;
+  }
+  .contact-row a, .contact-row span{
+    display:inline-flex; align-items:center; gap:6px; color:var(--ink-soft); text-decoration:none;
+  }
+  .contact-row a:hover{ color:var(--accent-dark); }
+  .contact-row svg{ opacity:0.6; }
+
+  .stat-block{
+    display:flex; flex-direction:column; gap:14px;
+    border-left:1px solid var(--line); padding-left:28px;
+    min-width:180px;
+  }
+  .stat{ }
+  .stat .num{
+    font-family:var(--mono); font-weight:700; font-size:28px; color:var(--accent-dark);
+    display:block;
+  }
+  .stat .label{ font-size:12.5px; color:var(--ink-soft); }
+
+  /* ---------- Experience (grep-log style) ---------- */
+  .exp-item{
+    display:grid; grid-template-columns:64px 1fr; gap:0;
+    margin-bottom:6px;
+  }
+  .exp-line{
+    font-family:var(--mono); font-size:12px; color:var(--ink-faint);
+    text-align:right; padding-right:16px; padding-top:20px;
+    border-right:1px solid var(--line);
+    user-select:none;
+  }
+  .exp-body{ padding:18px 0 18px 20px; border-bottom:1px dashed var(--line); }
+  .exp-item:last-child .exp-body{ border-bottom:none; }
+  .exp-head{
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 14px; margin-bottom:8px;
+  }
+  .exp-role{ font-weight:600; font-size:16.5px; }
+  .exp-company{ color:var(--accent-dark); font-weight:600; }
+  .exp-dates{
+    font-family:var(--mono); font-size:12px; color:var(--ink-faint);
+    margin-left:auto; white-space:nowrap;
+  }
+  .exp-body ul{ margin:0; padding-left:18px; color:var(--ink-soft); font-size:14.5px; }
+  .exp-body li{ margin-bottom:6px; }
+  .exp-body li b{ color:var(--ink); font-weight:600; }
+
+  /* ---------- Projects ---------- */
+  .project-grid{
+    display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;
+  }
+  .project-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px 22px; transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .project-card:hover{
+    border-color:var(--accent); transform:translateY(-2px);
+    box-shadow:0 6px 18px rgba(20,24,26,0.06);
+  }
+  .project-card h3{
+    font-family:var(--mono); font-size:15px; margin:0 0 10px 0;
+    display:flex; align-items:center; gap:8px;
+  }
+  .project-card h3::before{ content:"//"; color:var(--accent); font-weight:700; }
+  .project-card ul{ margin:0; padding-left:18px; font-size:14px; color:var(--ink-soft); }
+  .project-card li{ margin-bottom:5px; }
+  .project-card li b{ color:var(--ink); font-weight:600; }
+
+  /* ---------- Skills (inverted index) ---------- */
+  .skill-group{ margin-bottom:20px; }
+  .skill-group h4{
+    font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--ink-faint); margin:0 0 10px 0; font-weight:500;
+  }
+  .tag-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{
+    font-family:var(--mono); font-size:12.5px;
+    background:var(--card); border:1px solid var(--line); border-radius:2px;
+    padding:5px 10px; color:var(--ink-soft);
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .tag:hover{ border-color:var(--accent); color:var(--ink); }
+
+  .competency-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:6px 24px;
+    font-family:var(--mono); font-size:13px; color:var(--ink-soft);
+    margin-top:8px;
+  }
+  .competency-grid div::before{ content:"· "; color:var(--accent); }
+
+  /* ---------- Education / footer ---------- */
+  .edu-row{
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    font-size:15px;
+  }
+  .edu-row .school{ color:var(--ink-soft); }
+  .edu-row .year{ font-family:var(--mono); color:var(--ink-faint); font-size:13px; }
+
+  footer{
+    padding:40px 0 60px 0; text-align:center;
+    font-family:var(--mono); font-size:12.5px; color:var(--ink-faint);
+  }
+  footer a{ color:var(--ink-soft); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:720px){
+    .hero-grid{ grid-template-columns:1fr; }
+    .stat-block{ flex-direction:row; border-left:none; border-top:1px solid var(--line); padding-left:0; padding-top:16px; gap:28px; }
+    .project-grid{ grid-template-columns:1fr; }
+    .competency-grid{ grid-template-columns:repeat(2, 1fr); }
+    nav.crumbs{ order:3; width:100%; }
+    .search-wrap{ order:2; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="prompt"><span class="user">shaif@search-engineer</span><span>:~$</span><span class="cursor"></span></div>
+    <nav class="crumbs">
+      <a href="#about">about</a>
+      <a href="#experience">experience</a>
+      <a href="#projects">projects</a>
+      <a href="#skills">skills</a>
+      <a href="#contact">contact</a>
+    </nav>
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="search this page…" autocomplete="off" spellcheck="false">
+      <button class="search-nav-btn" id="prevHit" title="Previous match">↑</button>
+      <button class="search-nav-btn" id="nextHit" title="Next match">↓</button>
+      <span id="searchMeta"></span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero" id="about">
+    <div class="hero-grid">
+      <div>
+        <h1>SHAIF ASLAM<span class="dot">.</span></h1>
+        <p class="role-line">// Software Engineer — Backend Systems &amp; Search</p>
+        <p class="hero-summary">
+          Highly skilled Software Development Engineer with expertise in backend development, cloud-native applications, and e-commerce solutions. Proficient in designing scalable, efficient systems using Java, Spring, AWS Lambda, and Elasticsearch, with experience spanning system design, microservices architecture, machine learning integration, and robust API development.
+        </p>
+        <div class="contact-row">
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>9903682286</span>
+          <a href="mailto:shaif.aslam.sse@outlook.com"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>shaif.aslam.sse@outlook.com</a>
+          <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Delhi, India</span>
+          <a href="https://linkedin.com" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.86 0-2.15 1.45-2.15 2.94v5.66H9.35V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>LinkedIn</a>
+          <a href="https://github.com/loophole009" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.87 10.94c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.06 11.06 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.6.24 2.76.12 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.42.36.78 1.07.78 2.16v3.2c0 .32.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>GitHub</a>
+        </div>
+      </div>
+      <div class="stat-block">
+        <div class="stat"><span class="num">6+ yrs</span><span class="label">backend &amp; search engineering</span></div>
+        <div class="stat"><span class="num">10%</span><span class="label">lift in product search relevance</span></div>
+        <div class="stat"><span class="num">5</span><span class="label">companies, e-commerce → consulting</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="eyebrow">work log</div>
+    <h2 class="section-title">Experience <span class="count">// 5 entries, reverse-chronological</span></h2>
+
+    <div class="exp-item">
+      <div class="exp-line">01</div>
+      <div class="exp-body">
+        <div class="exp-head">
+          <span class="exp-role">Developer</span><span>·</span><span class="exp-company">Upwork, India</span>
+          <span class="exp-dates">Sep 2024 – Present</span>
+        </div>
+        <ul>
+          <li><b>Enterprise Application Development:</b> working on secured, scalable enterprise applications.</li>
+          <li><b>Feature Development:</b> building document search, semantic search, and RAG capabilities.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-line">02</div>
+      <div class="exp-body">
+        <div class="exp-head">
+          <span class="exp-role">Senior Software Engineer</span><span>·</span><span class="exp-company">Snapdeal, India</span>
+          <span class="exp-dates">Dec 2023 – Sep 2024</span>
+        </div>
+        <ul>
+          <li><b>Search Optimization:</b> spearheaded search engine features for Snapdeal's e-commerce platform, optimizing product discovery.</li>
+          <li><b>System Design:</b> improved auto-suggester algorithms to dynamically adapt to user behavior and product trends.</li>
+          <li><b>Feature Development:</b> applied design patterns to build scalable, maintainable backend systems for high-traffic environments.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-line">03</div>
+      <div class="exp-body">
+        <div class="exp-head">
+          <span class="exp-role">Senior Software Engineer</span><span>·</span><span class="exp-company">Stealth Startup, India</span>
+          <span class="exp-dates">Apr 2022 – Dec 2023</span>
+        </div>
+        <ul>
+          <li><b>E-Commerce Development:</b> led key features focused on enhancing the shopping experience.</li>
+          <li><b>Microservice Architecture:</b> built robust, scalable microservices with Spring Boot for backend request handling.</li>
+          <li><b>API Integration:</b> integrated third-party APIs, including dynamic reindexing of products from external catalogs.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-line">04</div>
+      <div class="exp-body">
+        <div class="exp-head">
+          <span class="exp-role">Analyst / Software Engineer</span><span>·</span><span class="exp-company">Deloitte, India</span>
+          <span class="exp-dates">Jan 2021 – Apr 2022</span>
+        </div>
+        <ul>
+          <li><b>Serverless Solutions:</b> led microservice development on AWS Lambda for improved scalability and performance.</li>
+          <li><b>Cloud Optimization:</b> optimized AWS deployments, improving reliability and reducing operational overhead.</li>
+          <li><b>Automation Workflows:</b> built automated workflows across the development and deployment cycle.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-line">05</div>
+      <div class="exp-body">
+        <div class="exp-head">
+          <span class="exp-role">Associate Consultant</span><span>·</span><span class="exp-company">Capgemini, India</span>
+          <span class="exp-dates">Aug 2018 – Jan 2021</span>
+        </div>
+        <ul>
+          <li><b>ML Endpoints:</b> developed machine learning inference endpoints powering product recommendations.</li>
+          <li><b>AI Integration:</b> integrated AI algorithms into e-commerce search, improving recommendation accuracy.</li>
+          <li><b>Data Pipelines:</b> designed high-performance pipelines for AI data processing and inference.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="eyebrow">selected builds</div>
+    <h2 class="section-title">Projects <span class="count">// 4 results</span></h2>
+    <div class="project-grid">
+      <div class="project-card">
+        <h3>E-Commerce Search Engine Optimization</h3>
+        <ul>
+          <li><b>Fuzzy Search:</b> advanced fuzzy-logic algorithms for more accurate, relevant results.</li>
+          <li><b>Auto-Suggestions:</b> suggestions that adapt to user input and live product trends.</li>
+          <li><b>API Integration:</b> reindexed products across external catalogs for wider selection.</li>
+        </ul>
+      </div>
+      <div class="project-card">
+        <h3>Product Search Microservice</h3>
+        <ul>
+          <li><b>Search Microservice:</b> scalable service handling large volumes of e-commerce queries.</li>
+          <li><b>Data Caching:</b> Hibernate-based caching, improving retrieval speed and cutting server load.</li>
+        </ul>
+      </div>
+      <div class="project-card">
+        <h3>Authentication Service Backend</h3>
+        <ul>
+          <li><b>OTP Service:</b> OTP generation and authentication microservice built with Spring Boot.</li>
+          <li><b>JWT Security:</b> secure token generation and validation.</li>
+          <li><b>Data Persistence:</b> Spring JPA for repository management and persistence.</li>
+        </ul>
+      </div>
+      <div class="project-card">
+        <h3>Content Detection Backend</h3>
+        <ul>
+          <li><b>Text Extraction:</b> pulls text from images and decks, grouped for semantic search.</li>
+          <li><b>Image Processing:</b> custom Tesseract OCR engine running on AWS Lambda.</li>
+          <li><b>API Deployment:</b> backend API on AWS for seamless integration with data sources.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="eyebrow">inverted index</div>
+    <h2 class="section-title">Skills <span class="count">// grouped by category</span></h2>
+
+    <div class="skill-group">
+      <h4>Programming Languages</h4>
+      <div class="tag-row"><span class="tag">Java</span><span class="tag">JavaScript</span></div>
+    </div>
+    <div class="skill-group">
+      <h4>Frameworks &amp; Tools</h4>
+      <div class="tag-row">
+        <span class="tag">Spring Framework</span><span class="tag">Spring Boot</span><span class="tag">Hibernate</span>
+        <span class="tag">AWS Lambda</span><span class="tag">Elasticsearch</span><span class="tag">Lucene</span><span class="tag">Tomcat</span>
+      </div>
+    </div>
+    <div class="skill-group">
+      <h4>Databases</h4>
+      <div class="tag-row"><span class="tag">PostgreSQL</span><span class="tag">Cassandra</span></div>
+    </div>
+    <div class="skill-group">
+      <h4>Cloud Platforms</h4>
+      <div class="tag-row"><span class="tag">AWS EC2</span><span class="tag">AWS Lambda</span><span class="tag">AWS S3</span></div>
+    </div>
+    <div class="skill-group">
+      <h4>Development Practices</h4>
+      <div class="tag-row">
+        <span class="tag">RESTful API</span><span class="tag">Microservices</span><span class="tag">MVC</span>
+        <span class="tag">OOP</span><span class="tag">SOA</span><span class="tag">Agile</span><span class="tag">CI/CD</span><span class="tag">Jenkins</span><span class="tag">Git</span>
+      </div>
+    </div>
+
+    <div class="skill-group">
+      <h4>Core Competencies</h4>
+      <div class="competency-grid">
+        <div>Software Development</div><div>Version Control</div><div>System Optimization</div>
+        <div>System Design</div><div>Security Management</div><div>Data Processing</div>
+        <div>API Integration</div><div>Agile Methodology</div><div>Server Management</div>
+        <div>Microservices Architecture</div><div>Performance Tuning</div><div>Technical Documentation</div>
+        <div>Cloud Computing</div><div>Data Structures</div><div>DevOps Practices</div>
+        <div>Database Management</div><div>Algorithm Design</div><div>Test Automation</div>
+        <div>Code Optimization</div><div>Software Debugging</div><div>Data Modeling</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="education">
+    <div class="eyebrow">record</div>
+    <h2 class="section-title">Education</h2>
+    <div class="edu-row">
+      <span>B.Tech in Computer Science and Engineering — <span class="school">MAKAUT, India</span></span>
+      <span class="year">2018</span>
+    </div>
+  </section>
+
+  <section id="contact" style="border-bottom:none;">
+    <div class="eyebrow">reach out</div>
+    <h2 class="section-title">Contact</h2>
+    <p style="max-width:520px; color:var(--ink-soft);">
+      Open to conversations about backend systems, search &amp; retrieval, and e-commerce platform engineering.
+      Fastest way to reach me is email.
+    </p>
+    <div class="contact-row" style="margin-top:14px;">
+      <a href="mailto:shaif.aslam.sse@outlook.com">shaif.aslam.sse@outlook.com</a>
+      <span>9903682286</span>
+      <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn ↗</a>
+      <a href="https://github.com/loophole009" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div>© <span id="year"></span> Shaif Aslam — built for GitHub Pages · <a href="#about">back to top</a></div>
+</footer>
+
+<script>
+(function(){
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  var main = document.querySelector('main');
+  var input = document.getElementById('searchInput');
+  var meta = document.getElementById('searchMeta');
+  var prevBtn = document.getElementById('prevHit');
+  var nextBtn = document.getElementById('nextHit');
+
+  var hits = [];
+  var activeIndex = -1;
+  var textNodes = [];
+
+  // Collect the original text nodes once (before any marking) so we can
+  // always search against clean text and safely rebuild marks.
+  function collectTextNodes(root){
+    var nodes = [];
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(node){
+        if(!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        var tag = node.parentNode && node.parentNode.tagName;
+        if(tag === 'SCRIPT' || tag === 'STYLE') return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var n;
+    while((n = walker.nextNode())) nodes.push(n);
+    return nodes;
+  }
+
+  function clearMarks(){
+    var marks = main.querySelectorAll('mark.hit');
+    marks.forEach(function(m){
+      var parent = m.parentNode;
+      parent.replaceChild(document.createTextNode(m.textContent), m);
+      parent.normalize();
+    });
+  }
+
+  function escapeRegExp(s){
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function runSearch(query){
+    clearMarks();
+    hits = [];
+    activeIndex = -1;
+
+    if(!query || !query.trim()){
+      updateMeta();
+      return;
+    }
+
+    var re = new RegExp(escapeRegExp(query.trim()), 'gi');
+    var nodes = collectTextNodes(main);
+
+    nodes.forEach(function(node){
+      var text = node.nodeValue;
+      re.lastIndex = 0;
+      var match;
+      var pieces = [];
+      var lastIndex = 0;
+      var found = false;
+
+      while((match = re.exec(text)) !== null){
+        found = true;
+        if(match.index > lastIndex){
+          pieces.push(document.createTextNode(text.slice(lastIndex, match.index)));
+        }
+        var markEl = document.createElement('mark');
+        markEl.className = 'hit';
+        markEl.textContent = match[0];
+        pieces.push(markEl);
+        hits.push(markEl);
+        lastIndex = match.index + match[0].length;
+        if(match[0].length === 0) re.lastIndex++;
+      }
+
+      if(found){
+        if(lastIndex < text.length){
+          pieces.push(document.createTextNode(text.slice(lastIndex)));
+        }
+        var frag = document.createDocumentFragment();
+        pieces.forEach(function(p){ frag.appendChild(p); });
+        node.parentNode.replaceChild(frag, node);
+      }
+    });
+
+    if(hits.length){
+      activeIndex = 0;
+      focusHit(0);
+    }
+    updateMeta();
+  }
+
+  function focusHit(i){
+    hits.forEach(function(h){ h.classList.remove('active'); });
+    if(i < 0 || i >= hits.length) return;
+    var el = hits[i];
+    el.classList.add('active');
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    updateMeta();
+  }
+
+  function updateMeta(){
+    if(!hits.length){
+      meta.textContent = input.value.trim() ? '0 matches' : '';
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    }
+    meta.textContent = (activeIndex + 1) + ' / ' + hits.length;
+    prevBtn.disabled = false;
+    nextBtn.disabled = false;
+  }
+
+  var debounceTimer;
+  input.addEventListener('input', function(){
+    clearTimeout(debounceTimer);
+    var val = input.value;
+    debounceTimer = setTimeout(function(){ runSearch(val); }, 120);
+  });
+
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      if(!hits.length) return;
+      if(e.shiftKey){
+        activeIndex = (activeIndex - 1 + hits.length) % hits.length;
+      } else {
+        activeIndex = (activeIndex + 1) % hits.length;
+      }
+      focusHit(activeIndex);
+    } else if(e.key === 'Escape'){
+      input.value = '';
+      runSearch('');
+      input.blur();
+    }
+  });
+
+  nextBtn.addEventListener('click', function(){
+    if(!hits.length) return;
+    activeIndex = (activeIndex + 1) % hits.length;
+    focusHit(activeIndex);
+  });
+  prevBtn.addEventListener('click', function(){
+    if(!hits.length) return;
+    activeIndex = (activeIndex - 1 + hits.length) % hits.length;
+    focusHit(activeIndex);
+  });
+
+  // Global keyboard shortcut: "/" focuses search, like grep/vim style tools.
+  document.addEventListener('keydown', function(e){
+    if(e.key === '/' && document.activeElement !== input){
+      e.preventDefault();
+      input.focus();
+    }
+  });
+
+  updateMeta();
+})();
+</script>
+
+</body>
+</html>
