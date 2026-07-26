@@ -183,7 +183,6 @@
     border-left:1px solid var(--line); padding-left:28px;
     min-width:180px;
   }
-  .stat{ }
   .stat .num{
     font-family:var(--mono); font-weight:700; font-size:28px; color:var(--accent-dark);
     display:block;
@@ -259,6 +258,36 @@
   }
   .competency-grid div::before{ content:"· "; color:var(--accent); }
 
+  /* ---------- Demo player (pop-out) ---------- */
+  .demo-play-title{
+    font:inherit; background:none; border:none; padding:0; margin:0; cursor:pointer;
+    color:var(--accent-dark); text-decoration:underline; text-decoration-color:rgba(46,143,118,0.35);
+    text-align: left;
+  }
+  .demo-play-title:hover{ text-decoration-color:var(--accent-dark); }
+
+  .demo-modal-overlay{
+    display:none; position:fixed; inset:0; z-index:100;
+    background:rgba(20,24,26,0.72);
+    align-items:center; justify-content:center; padding:24px;
+  }
+  .demo-modal-overlay.open{ display:flex; }
+  .demo-modal{
+    position:relative; width:100%; max-width:960px;
+    background:#000; border-radius:var(--radius);
+    box-shadow:0 12px 40px rgba(0,0,0,0.4);
+  }
+  .demo-modal-frame{ position:relative; width:100%; padding-top:55.6%; }
+  .demo-modal-frame iframe{
+    position:absolute; top:0; left:0; width:100%; height:100%; border:none;
+    border-radius:var(--radius);
+  }
+  .demo-modal-close{
+    position:absolute; top:-40px; right:0; background:none; border:none;
+    color:#fff; font-size:28px; line-height:1; cursor:pointer; padding:4px 8px;
+  }
+  .demo-modal-close:hover{ color:var(--highlight); }
+
   /* ---------- Education / footer ---------- */
   .edu-row{
     display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
@@ -296,6 +325,7 @@
       <a href="#about">about</a>
       <a href="#experience">experience</a>
       <a href="#projects">projects</a>
+      <a href="#demo-projects">demos</a>
       <a href="#skills">skills</a>
       <a href="#contact">contact</a>
     </nav>
@@ -452,6 +482,64 @@
     </div>
   </section>
 
+  <section id="demo-projects">
+    <div class="eyebrow">watch it run</div>
+    <h2 class="section-title">Demo Projects <span class="count">// 1 result</span></h2>
+    <div class="project-grid">
+      <div class="project-card">
+        <h3><button type="button" class="demo-play-title" onclick="openDemoPlayer('https://1drv.ms/v/c/512ee95e98cc80fb/IQT7gMyYXukuIIBRbgAAAAAAAW9u3yMC1s6Fk10tKBHATt0?width=3024&height=1688')">Movie Search API</button></h3>
+        <ul>
+          <li><b>Movie Search API:</b> core backend API for querying and retrieving movie data.</li>
+        </ul>
+      </div>
+      <div class="project-card">
+        <h3><button type="button" class="demo-play-title" onclick="openDemoPlayer('https://1drv.ms/v/c/512ee95e98cc80fb/IQT7gMyYXukuIIBRcAAAAAAAAXBH1GqGwnw5YRvn6vreZIU?width=3020&height=1774')">Movie Search Elk Quarkus</button></h3>
+        <ul>
+          <li><b>ELK + Quarkus:</b> movie search service built on Elasticsearch with a Quarkus backend.</li>
+        </ul>
+      </div>
+      <div class="project-card">
+        <h3><button type="button" class="demo-play-title" onclick="openDemoPlayer('https://1drv.ms/v/c/512ee95e98cc80fb/IQT7gMyYXukuIIBRcgAAAAAAAcd04GjduDDgeWV3GxjNFvw?width=3024&height=1772')">Movie Search Onclick Recommendation</button></h3>
+        <ul>
+          <li><b>Onclick Recommendations:</b> surfaces related-movie suggestions triggered by user click events.</li>
+        </ul>
+      </div>
+      <div class="project-card">
+        <h3><button type="button" class="demo-play-title" onclick="openDemoPlayer('https://1drv.ms/v/c/512ee95e98cc80fb/IQT7gMyYXukuIIBRbwAAAAAAAT2Fw5-RP33uRR015f8ctEo?width=3020&height=1686')">Movie Search Pagination Ranking API</button></h3>
+        <ul>
+          <li><b>Pagination &amp; Ranking:</b> paginated movie search results with relevance-based ranking.</li>
+        </ul>
+      </div>
+      <div class="project-card">
+        <h3><button type="button" class="demo-play-title" onclick="openDemoPlayer('https://1drv.ms/v/c/512ee95e98cc80fb/IQT7gMyYXukuIIBRdAAAAAAAAd63aqfcrBEtmBEBZwlTdgc?width=3024&height=1778')">Product Suggestions</button></h3>
+        <ul>
+          <li><b>Product Suggestions:</b> recommendation engine surfacing related products for e-commerce search.</li>
+        </ul>
+      </div>
+      <div class="project-card">
+        <h3><button type="button" class="demo-play-title" onclick="openDemoPlayer('https://1drv.ms/v/c/512ee95e98cc80fb/IQQ-J6Wds-vdR4Dt_vNFeM7jAZpEnk7rDandXpBpmlbpqec?width=3024&height=1784')">Scanned Document Search</button></h3>
+        <ul>
+          <li><b>Scanned Document Search:</b> OCR-driven text extraction and search over scanned documents.</li>
+        </ul>
+      </div>
+      <div class="project-card">
+        <h3><button type="button" class="demo-play-title" onclick="openDemoPlayer('https://1drv.ms/v/c/512ee95e98cc80fb/IQT7gMyYXukuIIBRcwAAAAAAAaMb9-Z0-wdy_p-Gb2iRGws?width=3024&height=1778')">Vector Search Indexing Ranking</button></h3>
+        <ul>
+          <li><b>Vector Search:</b> embedding-based indexing and ranking for semantic similarity search.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="demo-modal-overlay" id="demoModalOverlay">
+    <div class="demo-modal">
+      <button type="button" class="demo-modal-close" id="demoModalClose" aria-label="Close player">&times;</button>
+      <div class="demo-modal-frame">
+        <iframe id="demoModalIframe" src="" allow="autoplay; fullscreen" allowfullscreen frameborder="0"></iframe>
+      </div>
+    </div>
+  </div>
+
   <section id="skills">
     <div class="eyebrow">inverted index</div>
     <h2 class="section-title">Skills <span class="count">// grouped by category</span></h2>
@@ -530,6 +618,30 @@
 <script>
 (function(){
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  var demoOverlay = document.getElementById('demoModalOverlay');
+  var demoIframe = document.getElementById('demoModalIframe');
+  var demoClose = document.getElementById('demoModalClose');
+
+  window.openDemoPlayer = function(url){
+    demoIframe.src = url;
+    demoOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  function closeDemoPlayer(){
+    demoOverlay.classList.remove('open');
+    demoIframe.src = '';
+    document.body.style.overflow = '';
+  }
+
+  demoClose.addEventListener('click', closeDemoPlayer);
+  demoOverlay.addEventListener('click', function(e){
+    if(e.target === demoOverlay) closeDemoPlayer();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && demoOverlay.classList.contains('open')) closeDemoPlayer();
+  });
 
   var main = document.querySelector('main');
   var input = document.getElementById('searchInput');
